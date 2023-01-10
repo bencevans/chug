@@ -1,6 +1,6 @@
 [package]
 name = "chug"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
 keywords = ["eta", "progress"]
 description = "Estimate time remaining for a long-running process"
