@@ -111,16 +111,21 @@ impl Chug {
             return None;
         }
 
-        let average_between = {
-            let mut sum = 0;
-            let mut last = None;
-            for now in self._bucket.items() {
-                if let Some(last) = last {
-                    sum += now.duration_since(last).as_millis() as usize;
-                }
-                last = Some(*now);
+        let time_between = {
+            let items = self._bucket.items().clone();
+            let mut time_between = Vec::with_capacity(items.len() - 1);
+            for i in 0..items.len() - 1 {
+                time_between.push(items[i + 1].duration_since(items[i]));
             }
-            sum / self._bucket.len()
+            time_between
+        };
+        
+
+        let median_between = {
+            let mut time_between = time_between;
+            time_between.sort();
+            let mid = time_between.len() / 2;
+            time_between[mid].as_millis() as u64
         };
 
         if self._current_work > self._total_work {
@@ -132,8 +137,8 @@ impl Chug {
         if remaining == 0 {
             None
         } else {
-            let eta = average_between * remaining;
-            Some(std::time::Duration::from_millis(eta as u64))
+            let eta = median_between * remaining as u64;
+            Some(std::time::Duration::from_millis(eta))
         }
     }
 }
